@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import datetime
 import re
@@ -71,6 +72,8 @@ def commit_and_push(version):
     return True, "Commit and push successful"
 
 def main():
+    force = '--force' in sys.argv
+
     log_file = os.path.join(PROJECT_DIR, 'auto_commit.log')
     
     def log(msg):
@@ -80,6 +83,23 @@ def main():
         print(msg)
     
     log("=== Auto Version Commit Task Started ===")
+    
+    if force:
+        log("Force mode enabled, skipping version check")
+        has_change, err = has_changes()
+        if err:
+            log(f"ERROR: Cannot check git status: {err}")
+            return
+        if not has_change:
+            log("No changes detected, nothing to commit")
+            return
+        success, msg = commit_and_push("force")
+        if success:
+            log(f"SUCCESS: {msg}")
+        else:
+            log(f"FAILURE: {msg}")
+        log("=== Auto Version Commit Task Finished ===")
+        return
     
     current_version = get_current_version()
     last_version = get_last_version()
