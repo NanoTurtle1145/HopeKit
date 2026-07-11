@@ -75,3 +75,8 @@ auto_commit.log
 chat_room.py
 sample_add-button.py
 sample_add-page.py
+
+# Legacy auto scripts (keep locally, do not track)
+auto_commit.bat
+auto_version_commit.py
+.last_version
