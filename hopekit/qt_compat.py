@@ -60,6 +60,8 @@ QMessageBox = QtWidgets.QMessageBox
 QFrame = QtWidgets.QFrame
 QStackedWidget = QtWidgets.QStackedWidget
 
+QThread = QtCore.QThread
+
 QPixmap = QtGui.QPixmap
 QCursor = QtCore.Qt.PointingHandCursor if hasattr(QtCore.Qt, 'PointingHandCursor') else None
 

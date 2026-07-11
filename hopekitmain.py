@@ -26,7 +26,7 @@ class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("设置")
-        self.setFixedSize(420, 360)
+        self.setFixedSize(460, 520)
         self._build_ui()
         self._apply_dialog_style()
 
@@ -42,9 +42,32 @@ class SettingsDialog(QDialog):
         )
         layout.addWidget(title)
 
-        theme_box = QtWidgets.QGroupBox("外观主题")
-        theme_layout = QtWidgets.QVBoxLayout(theme_box)
-        theme_layout.setSpacing(10)
+        # ---- 主题风格 ----
+        style_box = QtWidgets.QGroupBox("主题风格")
+        style_layout = QtWidgets.QVBoxLayout(style_box)
+        style_layout.setSpacing(10)
+
+        self._style_md3 = QtWidgets.QRadioButton("Material Design 3（默认，动态强调色 + 大圆角）")
+        self._style_md2 = QtWidgets.QRadioButton("Material Design 2（扁平化 + 阴影 + 4px 圆角）")
+        self._style_win = QtWidgets.QRadioButton("Windows 原生风格（跟随系统控件外观）")
+
+        cur_style = theme.style
+        if cur_style == "md2":
+            self._style_md2.setChecked(True)
+        elif cur_style == "windows":
+            self._style_win.setChecked(True)
+        else:
+            self._style_md3.setChecked(True)
+
+        style_layout.addWidget(self._style_md3)
+        style_layout.addWidget(self._style_md2)
+        style_layout.addWidget(self._style_win)
+        layout.addWidget(style_box)
+
+        # ---- 深浅色模式 ----
+        mode_box = QtWidgets.QGroupBox("深浅模式")
+        mode_layout = QtWidgets.QVBoxLayout(mode_box)
+        mode_layout.setSpacing(10)
 
         self._auto_btn = QtWidgets.QRadioButton("跟随 Windows（自动匹配系统强调色与深浅色）")
         self._light_btn = QtWidgets.QRadioButton("浅色模式")
@@ -58,10 +81,10 @@ class SettingsDialog(QDialog):
         else:
             self._light_btn.setChecked(True)
 
-        theme_layout.addWidget(self._auto_btn)
-        theme_layout.addWidget(self._light_btn)
-        theme_layout.addWidget(self._dark_btn)
-        layout.addWidget(theme_box)
+        mode_layout.addWidget(self._auto_btn)
+        mode_layout.addWidget(self._light_btn)
+        mode_layout.addWidget(self._dark_btn)
+        layout.addWidget(mode_box)
 
         hint = QtWidgets.QLabel("选择主题后将立即应用到整个界面。")
         hint.setStyleSheet(
@@ -82,6 +105,13 @@ class SettingsDialog(QDialog):
         layout.addLayout(btn_row)
 
     def _apply(self):
+        if self._style_md2.isChecked():
+            theme.set_style("md2")
+        elif self._style_win.isChecked():
+            theme.set_style("windows")
+        else:
+            theme.set_style("md3")
+
         if self._auto_btn.isChecked():
             theme.set_mode("auto")
         elif self._dark_btn.isChecked():
