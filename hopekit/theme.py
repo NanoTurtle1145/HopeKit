@@ -101,8 +101,7 @@ class ThemeManager:
     def __init__(self):
         self._style = self._default_style_for_platform()
         self._mode = "auto"
-        if not self.load():
-            self.save()
+        self.load()
 
     # ---- 基本属性 ----
     @property
@@ -153,29 +152,35 @@ class ThemeManager:
             self.save()
 
     def load(self) -> bool:
-        loaded = False
+        loaded_from_config = False
         try:
             with open(self._CONFIG_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
             self._apply_config(data)
-            loaded = True
+            loaded_from_config = True
         except (FileNotFoundError, json.JSONDecodeError, OSError):
             pass
 
-        if not loaded:
+        bundled_loaded = False
+        if not loaded_from_config:
             bundled = resource_path("theme.json")
             if bundled != self._CONFIG_PATH and os.path.isfile(bundled):
                 try:
                     with open(bundled, "r", encoding="utf-8") as f:
                         data = json.load(f)
                     self._apply_config(data)
-                    os.makedirs(os.path.dirname(self._CONFIG_PATH), exist_ok=True)
-                    shutil.copy2(bundled, self._CONFIG_PATH)
-                    loaded = True
+                    bundled_loaded = True
                 except (json.JSONDecodeError, OSError):
                     pass
 
-        return loaded
+        if not loaded_from_config:
+            default_style = self._default_style_for_platform()
+            if default_style != self._style:
+                self._style = default_style
+            os.makedirs(os.path.dirname(self._CONFIG_PATH), exist_ok=True)
+            self.save()
+
+        return loaded_from_config or bundled_loaded
 
     def _apply_config(self, data: dict):
         """将 JSON 数据应用到当前配置。"""
