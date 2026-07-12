@@ -149,9 +149,26 @@ class ModuleRegistry:
         cls._instances.clear()
 
 
+# PyInstaller 打包时 plugins/ 目录可能不存在，兜底用 hardcoded 列表
+_FROZEN_PLUGINS = [
+    "plugins.caidan",
+    "plugins.calculator",
+    "plugins.calendar",
+    "plugins.chat_room_plugin",
+    "plugins.copyright",
+    "plugins.links",
+    "plugins.shit_window",
+    "plugins.shutdown",
+]
+
+
 def discover_plugins(plugins_dir: str = "plugins") -> int:
     """
     自动扫描 plugins/ 目录，import 所有 .py 文件，触发装饰器注册。
+
+    支持两种模式：
+      - 开发/PyInstaller+datas：通过 os.listdir 扫描目录
+      - PyInstaller frozen（目录不存在）：回退到 _FROZEN_PLUGINS 硬编码列表
 
     Returns:
         加载的插件模块数量
@@ -160,20 +177,27 @@ def discover_plugins(plugins_dir: str = "plugins") -> int:
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     plugins_path = os.path.join(base_dir, plugins_dir)
 
-    if not os.path.isdir(plugins_path):
-        return 0
-
-    if plugins_path not in sys.path:
-        sys.path.insert(0, base_dir)
-
-    for filename in sorted(os.listdir(plugins_path)):
-        if filename.startswith("_") or not filename.endswith(".py"):
-            continue
-        module_name = f"{plugins_dir}.{filename[:-3]}"
-        try:
-            importlib.import_module(module_name)
-            count += 1
-        except Exception as e:
-            print(f"[WARN] Failed to load plugin {module_name}: {e}", file=sys.stderr)
+    if os.path.isdir(plugins_path):
+        # 开发模式 / PyInstaller 已将 plugins/ 作为 data 目录
+        if plugins_path not in sys.path:
+            sys.path.insert(0, base_dir)
+        for filename in sorted(os.listdir(plugins_path)):
+            if filename.startswith("_") or not filename.endswith(".py"):
+                continue
+            module_name = f"{plugins_dir}.{filename[:-3]}"
+            try:
+                importlib.import_module(module_name)
+                count += 1
+            except Exception as e:
+                print(f"[WARN] Failed to load plugin {module_name}: {e}", file=sys.stderr)
+    else:
+        # PyInstaller frozen：目录不存在，回退到硬编码列表
+        print(f"[discover] plugins/ 目录不存在，使用 frozen 兜底列表", flush=True)
+        for module_name in _FROZEN_PLUGINS:
+            try:
+                importlib.import_module(module_name)
+                count += 1
+            except Exception as e:
+                print(f"[WARN] Failed to load plugin {module_name}: {e}", file=sys.stderr)
 
     return count

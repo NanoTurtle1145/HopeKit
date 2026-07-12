@@ -17,8 +17,12 @@ ThemeManager — 多风格主题管理器
 """
 
 import json
+import os
+import shutil
+import platform
+import sys
 
-from hopekit.paths import config_path
+from hopekit.paths import config_path, resource_path
 
 
 class ThemeManager:
@@ -78,10 +82,27 @@ class ThemeManager:
         "nav_radius":  "12px",
     }
 
+    @staticmethod
+    def _default_style_for_platform() -> str:
+        """根据当前系统自动选择最合适的默认主题（优先透明风格）。"""
+        if sys.platform == "win32":
+            try:
+                ver = platform.win32_ver()[1]
+                build = int(ver.split('.')[-1])
+                if build >= 22621:
+                    return "winui3"
+                return "win10fluent"
+            except (ValueError, IndexError):
+                return "win10fluent"
+        elif sys.platform == "darwin":
+            return "cupertino"
+        return "md3"
+
     def __init__(self):
-        self._style = "md3"
+        self._style = self._default_style_for_platform()
         self._mode = "auto"
-        self.load()
+        if not self.load():
+            self.save()
 
     # ---- 基本属性 ----
     @property
@@ -131,16 +152,40 @@ class ThemeManager:
             self._mode = mode
             self.save()
 
-    def load(self):
+    def load(self) -> bool:
+        loaded = False
         try:
             with open(self._CONFIG_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            if data.get("style") in ("md3", "md2", "qt", "winui3", "win10fluent", "gnome", "kde", "cupertino", "chromeos"):
-                self._style = data["style"]
-            if data.get("mode") in ("auto", "light", "dark"):
-                self._mode = data["mode"]
+            self._apply_config(data)
+            loaded = True
         except (FileNotFoundError, json.JSONDecodeError, OSError):
             pass
+
+        if not loaded:
+            bundled = resource_path("theme.json")
+            if bundled != self._CONFIG_PATH and os.path.isfile(bundled):
+                try:
+                    with open(bundled, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    self._apply_config(data)
+                    os.makedirs(os.path.dirname(self._CONFIG_PATH), exist_ok=True)
+                    shutil.copy2(bundled, self._CONFIG_PATH)
+                    loaded = True
+                except (json.JSONDecodeError, OSError):
+                    pass
+
+        return loaded
+
+    def _apply_config(self, data: dict):
+        """将 JSON 数据应用到当前配置。"""
+        if data.get("style") in (
+            "md3", "md2", "qt", "winui3", "win10fluent",
+            "gnome", "kde", "cupertino", "chromeos",
+        ):
+            self._style = data["style"]
+        if data.get("mode") in ("auto", "light", "dark"):
+            self._mode = data["mode"]
 
     def save(self):
         try:

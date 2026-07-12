@@ -22,6 +22,7 @@ from hopekit.transparency import (
     enable_transparency_for_central,
     apply_backdrop_to_window,
     disable_transparency,
+    apply_transparency_dynamic,
 )
 from Styles import styles
 
@@ -427,12 +428,12 @@ class MainUi(QMainWindow):
         if app is not None:
             app.setStyleSheet(self._global_stylestring())
         self.setStyleSheet(styles.main_stylesheet(theme.colors))
-        # 主题切换时，清除或重新应用透明效果
-        # 注意：首次应用在 showEvent 里做（DWM 需要 HWND 已映射）
         if self.isVisible():
             if is_transparent_theme():
                 if not self._transparency_applied:
-                    self._apply_transparency()
+                    ok = apply_transparency_dynamic(self)
+                    if ok:
+                        self._transparency_applied = True
             else:
                 if self._transparency_applied:
                     self._clear_transparency()

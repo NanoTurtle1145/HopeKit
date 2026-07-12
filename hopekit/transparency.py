@@ -149,3 +149,57 @@ def disable_transparency(window):
             mica.apply_backdrop(hwnd, kind="none")
     except (ImportError, AttributeError, TypeError):
         pass
+
+
+def apply_transparency_dynamic(window) -> bool:
+    """
+    运行时动态开启透明效果（窗口已显示后切换主题时调用）。
+
+    WA_TranslucentBackground 必须在 show() 之前设置才完全可靠，
+    所以这里通过 hide() + 设置属性 + show() 的方式强制重新应用。
+
+    Returns:
+        是否成功应用透明材质
+    """
+    if not is_transparent_theme():
+        return False
+
+    try:
+        from hopekit import mica
+    except ImportError:
+        return False
+
+    try:
+        window.setAttribute(
+            QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True
+        )
+        central = getattr(window, "centralWidget", lambda: None)()
+        if central:
+            central.setAttribute(
+                QtCore.Qt.WidgetAttribute.WA_NoSystemBackground, True
+            )
+            central.setAttribute(
+                QtCore.Qt.WidgetAttribute.WA_StyledBackground, True
+            )
+    except (AttributeError, TypeError):
+        pass
+
+    was_visible = window.isVisible()
+    if was_visible:
+        window.hide()
+    window.show()
+
+    try:
+        hwnd = int(window.winId())
+        if hwnd == 0:
+            return False
+    except (AttributeError, TypeError):
+        return False
+
+    ok, msg = mica.apply_backdrop(hwnd, kind=None, dark=theme.is_dark)
+    if ok:
+        print(f"[{theme.style}] 动态透明: {msg}", flush=True)
+    else:
+        print(f"[{theme.style}] 动态透明失败: {msg}", flush=True)
+        disable_transparency(window)
+    return ok
