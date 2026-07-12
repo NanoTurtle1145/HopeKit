@@ -10,7 +10,7 @@ try:
     HAS_WEBENGINE = True
 except ImportError:
     try:
-        from PyQt5.QtWebEngineWidgets import QWebEngineView
+        from PyQt6.QtWebEngineWidgets import QWebEngineView
         HAS_WEBENGINE = True
     except ImportError:
         HAS_WEBENGINE = False

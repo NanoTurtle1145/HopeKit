@@ -137,4 +137,4 @@ def my_tool_factory(main_window):
 
 ---
 
-*HopeKit — 不是框架，是好用的脚手架。*
+*HopeKit — 不是框架，是好用的脚手架。* （这不是奶糖，这是压缩毛巾，遇水变大变高）
