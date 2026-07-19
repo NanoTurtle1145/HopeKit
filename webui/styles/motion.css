@@ -1,0 +1,130 @@
+/* ============================================================
+   motion.css — 减少动效 / 减少透明度 偏好响应
+   Apple 风格 (§14)：
+   - reduced-motion ≠ 无反馈，而是更柔和的非前庭替代
+   - reduced-transparency：材质变实色，blur 降为 0
+   - prefers-contrast: more：近实色背景 + 高对比边
+   ============================================================ */
+
+/* ---------------- REDUCED MOTION ----------------
+   关闭：slide / spring / overshoot / parallax
+   保留：opacity crossfade（短）、color（短） */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* page 入场改为纯 crossfade */
+  .page {
+    animation: page-fade var(--duration-fast) linear;
+  }
+  @keyframes page-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* 卡片图标不再 pop，纯 fade */
+  .card-icon {
+    animation: icon-fade var(--duration-fast) linear;
+  }
+  @keyframes icon-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* toggle switch 圆点不再滑动 spring，直接瞬切 */
+  .toggle-switch::after {
+    transition: none;
+  }
+
+  /* sidebar 折叠不再 spring 动画（JS 检测到 reduced-motion 时直接设值） */
+  .sidebar {
+    transition: width 0ms;
+  }
+
+  /* nav-group 展开/折叠直接显示 */
+  .nav-group-children {
+    transition: none;
+  }
+}
+
+/* ---------------- REDUCED TRANSPARENCY ----------------
+   半透明材质变实色（更厚的背景，关闭 blur）
+   保证文字可读性 */
+@media (prefers-reduced-transparency: reduce) {
+  .sidebar {
+    background: var(--color-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  [data-material="transparent"] .sidebar {
+    background: var(--color-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .floating-toolbar {
+    background: var(--color-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .scrim {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ---------------- INCREASED CONTRAST ----------------
+   实色背景 + 明确高对比边框 */
+@media (prefers-contrast: more) {
+  .card {
+    border: 1px solid var(--color-outline);
+    box-shadow: none;
+  }
+
+  .card:hover {
+    box-shadow: none;
+    border-color: var(--color-primary);
+  }
+
+  .nav-item {
+    border: 1px solid transparent;
+  }
+
+  .nav-item[aria-current="true"] {
+    border-color: var(--color-primary);
+  }
+
+  .icon-btn,
+  .view-btn {
+    border: 1px solid var(--color-outline);
+  }
+
+  :focus-visible {
+    outline-width: 3px;
+  }
+}
+
+/* ---------------- 大幅移动元素时半透明 ----------------
+   防止 vestibular discomfort：大物体移动时降低不透明度 */
+.sidebar.is-animating {
+  /* 折叠动画过程中，sidebar 轻微半透明，落定后恢复 */
+  /* 已通过 backdrop-filter 自然达到效果，这里保留扩展位 */
+}
+
+/* ---------------- 主题切换时的柔化 ----------------
+   暗色 ↔ 浅色主题切换时，避免亮度突变 */
+html[data-theme-transitioning="true"] *,
+html[data-theme-transitioning="true"] *::before,
+html[data-theme-transitioning="true"] *::after {
+  transition: background-color var(--duration-color) var(--ease-out),
+              color var(--duration-color) var(--ease-out),
+              border-color var(--duration-color) var(--ease-out) !important;
+}

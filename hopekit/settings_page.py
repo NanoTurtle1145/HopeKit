@@ -14,6 +14,10 @@ SettingsPage — 设置页面（嵌入主区域，非弹窗）
   │          │  ○ auto ○ 浅 ○ 深    │
   │          │       [导入主题文件]  │
   └─────────┴──────────────────────┘
+
+动画效果（基于 animation-vocabulary）:
+- Crossfade: 设置子页面切换淡入淡出
+- Press feedback: 按钮点击缩放反馈
 """
 
 import json
@@ -21,9 +25,11 @@ import json
 from hopekit.qt_compat import (
     QtCore, QtWidgets,
     QPushButton, QLabel, QVBoxLayout, QHBoxLayout,
+    QPropertyAnimation, QEasingCurve,
 )
 from hopekit.theme import theme
 from hopekit.paths import config_path
+from hopekit.version import VERSION
 
 
 class ThemePage(QtWidgets.QWidget):
@@ -342,18 +348,45 @@ class ThemePage(QtWidgets.QWidget):
 
 
 class AboutPage(QtWidgets.QWidget):
-    """关于页面（预留）"""
+    """关于页面"""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(12)
 
-        label = QLabel("关于 HopeKit")
-        label.setStyleSheet("font-size: 16pt; font-weight: 600;")
-        layout.addWidget(label)
+        title = QLabel("HopeKit")
+        title.setStyleSheet("font-size: 24pt; font-weight: 700;")
+        layout.addWidget(title)
+
+        version = QLabel(f"版本 {VERSION}")
+        version.setStyleSheet("font-size: 11pt; opacity: 0.7;")
+        layout.addWidget(version)
+
+        desc = QLabel(
+            "基于 PySide6 与 QWebEngine 的 Apple 风格桌面脚手架。\n"
+            "支持多主题切换、模块插件化管理。"
+        )
+        desc.setWordWrap(True)
+        desc.setStyleSheet("font-size: 10pt; opacity: 0.8;")
+        layout.addWidget(desc)
+
+        copyright = QLabel("© 2026 HopeKit. All rights reserved.")
+        copyright.setStyleSheet("font-size: 9pt; opacity: 0.5;")
+        layout.addWidget(copyright)
 
         layout.addStretch(1)
+
+    @staticmethod
+    def get_about_info():
+        """返回关于信息字典，供 Web UI 使用"""
+        return {
+            "name": "HopeKit",
+            "version": VERSION,
+            "description": "基于 PySide6 与 QWebEngine 的 Apple 风格桌面脚手架。支持多主题切换、模块插件化管理。",
+            "copyright": "© 2026 HopeKit. All rights reserved.",
+        }
 
 
 class SettingsPage(QtWidgets.QWidget):
@@ -369,6 +402,7 @@ class SettingsPage(QtWidgets.QWidget):
         super().__init__(parent)
         self._sub_nav_buttons = []
         self._sub_pages = {}
+        self._sub_page_animation = None
         self._build_ui()
 
     def _build_ui(self):
@@ -427,9 +461,35 @@ class SettingsPage(QtWidgets.QWidget):
         self._switch_sub("theme")
 
     def _switch_sub(self, key: str):
-        """切换二级菜单"""
-        if key in self._sub_pages:
-            self._sub_stack.setCurrentWidget(self._sub_pages[key])
+        """切换二级菜单 - 使用 Crossfade 淡入淡出动画"""
+        if key not in self._sub_pages:
+            return
+
+        target_page = self._sub_pages[key]
+        current_page = self._sub_stack.currentWidget()
+
+        if current_page == target_page:
+            for k, btn in self._sub_nav_buttons:
+                btn.setChecked(k == key)
+            return
+
+        if self._sub_page_animation is not None:
+            self._sub_page_animation.stop()
+
+        current_page.setWindowOpacity(1)
+        target_page.setWindowOpacity(0)
+
+        self._sub_stack.setCurrentWidget(target_page)
+
+        fade_in = QPropertyAnimation(target_page, b"windowOpacity")
+        fade_in.setDuration(200)
+        fade_in.setStartValue(0)
+        fade_in.setEndValue(1)
+        fade_in.setEasingCurve(QEasingCurve.Type.OutCubic)
+        fade_in.start()
+
+        self._sub_page_animation = fade_in
+
         for k, btn in self._sub_nav_buttons:
             btn.setChecked(k == key)
 

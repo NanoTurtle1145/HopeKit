@@ -1,12 +1,7 @@
-# HopeKit 支持两套 Qt6 绑定，二选一即可：
+# HopeKit 重构版（Web UI + Apple Design）
 #
-# 推荐（优先）：PySide6 — Qt 官方维护，LGPL 授权（闭源商用免费）
-#   pip install PySide6 PySide6-Addons
-#
-# 兼容：PyQt6 — 社区维护，GPL/商业双授权
-#   pip install PyQt6 PyQt6-WebEngine
-#
-# 程序启动时自动检测，优先用 PySide6，回退到 PyQt6。
+# 锁定 PySide6 单绑定（不再支持 PyQt6 回退）
+# WebEngine 是必装依赖（主界面由 QWebEngineView 渲染）
 
-# 默认装 PySide6（推荐）
 PySide6>=6.5
+PySide6-Addons>=6.5      # 包含 QtWebEngine / QtWebChannel

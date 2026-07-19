@@ -1,0 +1,129 @@
+/* ============================================================
+   base.css — 基础重置 + 排版 + 选择高亮
+   排版遵循 Apple Typography (WWDC 2020)：
+   - 系统字体优先（自带光学字号、字距表、可读性调校）
+   - 字距 / 行高 / 字重按尺寸配对，不要单一字号包打
+   - 使用 rem / em 跟随用户字号偏好
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font: var(--fw-regular) var(--fs-body) / var(--lh-body) var(--font-system);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-background);
+  color: var(--color-on-background);
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+  transition: background-color var(--duration-color) var(--ease-out),
+              color var(--duration-color) var(--ease-out);
+}
+
+/* 用户字号跟随：根字号随系统缩放 */
+@media (max-resolution: 96dpi) {
+  html { font-size: 15px; }
+}
+
+/* 标题层级：weight + size + leading + tracking 一组 */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: var(--fw-semibold);
+  font-optical-sizing: auto;
+}
+
+h1 {
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tr-display);
+  font-weight: var(--fw-bold);
+}
+
+h2 {
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+  letter-spacing: var(--tr-title);
+}
+
+h3 {
+  font-size: var(--fs-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tr-heading);
+}
+
+p {
+  margin: 0;
+  line-height: var(--lh-body);
+  letter-spacing: var(--tr-body);
+}
+
+small, .caption {
+  font-size: var(--fs-caption);
+  line-height: 1.33;
+  letter-spacing: var(--tr-caption);
+  color: var(--color-on-surface-variant);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: default;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 滚动条：极简、不抢视线 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-outline);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-on-surface-variant);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}

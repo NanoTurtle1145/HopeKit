@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>HopeKit</title>
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/layout.css">
+  <link rel="stylesheet" href="styles/materials.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/motion.css">
+</head>
+<body>
+  <!--
+    HopeKit Web UI — Apple Design Foundations
+    - Translucent sidebar (thick material) + solid content surface
+    - Spring animations (interruptible, velocity-aware)
+    - Optical typography, size-specific tracking
+    - Reduced-motion / reduced-transparency variants
+    - Spatial consistency: enter/exit along same path, anchored origins
+  -->
+
+  <div class="app-shell" id="appShell">
+
+    <!-- ============== SIDEBAR (translucent thick material) ============== -->
+    <aside class="sidebar" id="sidebar" data-collapsed="false">
+
+      <header class="sidebar-header">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">✦</span>
+          <h1 class="brand-title">HopeKit</h1>
+        </div>
+        <button class="icon-btn collapse-btn" id="collapseBtn" aria-label="折叠侧栏">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <path d="M9.5 3 5 8l4.5 5" fill="none" stroke="currentColor"
+                  stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </header>
+
+      <nav class="nav-scroll" id="navScroll" aria-label="主导航">
+        <ul class="nav-list" id="navList"><!-- 由 JS 注入 --></ul>
+      </nav>
+
+      <footer class="sidebar-footer">
+        <button class="icon-btn exit-btn" id="exitBtn" aria-label="退出">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <path d="M6 3H3v10h3M9.5 5 13 8l-3.5 3M6 8h7"
+                  fill="none" stroke="currentColor" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="exit-label">退出</span>
+        </button>
+      </footer>
+
+    </aside>
+
+    <!-- ============== CONTENT (solid surface) ============== -->
+    <main class="content" id="content">
+
+      <header class="content-header">
+        <div class="brand-watermark">
+          <img id="logoImg" alt="" aria-hidden="true">
+          <div class="title-group">
+            <h2 class="content-title" id="contentTitle">HopeKit</h2>
+            <p class="content-tip" id="contentTip">你今天看起来很聪明！</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="page-stack" id="pageStack"><!-- 由 JS 注入各分类页 --></section>
+
+    </main>
+
+  </div>
+
+  <!-- Bridge overlay (loaded by QWebChannel) -->
+  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  <script src="scripts/motion.js"></script>
+  <script src="scripts/bridge.js"></script>
+  <script src="scripts/app.js"></script>
+  <script src="scripts/main.js"></script>
+</body>
+</html>

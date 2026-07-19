@@ -53,6 +53,63 @@ def dialog_stylesheet(colors):
     return _md3_dialog(colors)
 
 
+def main_host_stylesheet(colors):
+    """
+    Web UI 宿主主窗口的极简 QSS。
+    主界面由 QWebEngineView 渲染（HTML/CSS/JS），这里仅做：
+    - QMainWindow 透明（让 DWM 材质透出）
+    - #webUIHost 容器透明
+    - QMenuBar 极简（保留菜单条但视觉上不抢戏）
+    - QStatusBar 同步配色
+    """
+    bg = colors.get('background', '#FFFFFF')
+    surface = colors.get('surface', '#F5F5F7')
+    on_surface = colors.get('on_surface', '#1D1D1F')
+    outline = colors.get('outline_variant', '#E5E5EA')
+
+    # 透明主题（winui3 / win10fluent）：背景透明让 DWM 材质透出
+    transparent = theme.style in ("winui3", "win10fluent")
+    host_bg = "transparent" if transparent else bg
+
+    return f"""
+        QMainWindow {{
+            background: {host_bg};
+        }}
+        #webUIHost {{
+            background: transparent;
+            border: none;
+        }}
+        QWebEngineView {{
+            background: transparent;
+            border: none;
+        }}
+        QMenuBar {{
+            background: transparent;
+            color: {on_surface};
+            border: none;
+            border-bottom: 1px solid {outline};
+            padding: 2px 6px;
+            font-size: 13px;
+        }}
+        QMenuBar::item {{
+            background: transparent;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }}
+        QMenuBar::item:selected {{
+            background: {colors.get('sidebar_hover', 'rgba(0,0,0,0.05)')};
+        }}
+        QStatusBar {{
+            background: {host_bg};
+            color: {colors.get('on_surface_variant', '#6D6D72')};
+            border: none;
+            border-top: 1px solid {outline};
+            font-size: 12px;
+            padding: 2px 8px;
+        }}
+    """
+
+
 # ============================================================
 #  MD3 样式（原样式保留）
 # ============================================================
@@ -309,6 +366,73 @@ def _md3_main(c):
         #importFab:hover {{
             background-color: {c['primary']};
             color: {c['on_primary']};
+        }}
+
+        /* ---- 模块卡片（基于 animation-vocabulary）---- */
+        #moduleCard {{
+            background: {c['surface']};
+            border: 1px solid {c['outline']};
+            border-radius: {c['card_radius']};
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: box-shadow 200ms ease-out, border-color 200ms ease-out, transform 150ms ease-out;
+        }}
+        #moduleCard:hover {{
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            border-color: {c['primary']};
+        }}
+        #moduleCard:pressed {{
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transform: scale(0.98);
+        }}
+
+        /* ---- Toggle Switch（基于 animation-vocabulary）---- */
+        #toggleSwitch {{
+            background: {c['outline']};
+            border: none;
+            border-radius: 12px;
+            min-width: 44px;
+            min-height: 24px;
+            padding: 0;
+            margin: 0;
+            transition: background 200ms ease-out;
+        }}
+        #toggleSwitch:checked {{
+            background: {c['primary']};
+        }}
+        #toggleSwitch::indicator {{
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 2px;
+            transition: margin-left 200ms ease-out;
+        }}
+        #toggleSwitch:checked::indicator {{
+            margin-left: 22px;
+        }}
+
+        /* ---- 查看按钮 ---- */
+        #viewBtn {{
+            background: {c['primary']};
+            color: {c['on_primary']};
+            border: none;
+            border-radius: {c['btn_radius']};
+            padding: 4px 12px;
+            font-size: 9pt;
+            font-weight: 500;
+            transition: background 200ms ease-out, transform 100ms ease-out;
+        }}
+        #viewBtn:hover {{
+            background: {c['primary_container']};
+            color: {c['on_primary_container']};
+        }}
+        #viewBtn:pressed {{
+            transform: scale(0.95);
+        }}
+        #viewBtn:disabled {{
+            background: {c['surface_variant']};
+            color: {c['outline']};
         }}
     """
 
@@ -639,6 +763,75 @@ def _md2_main(c):
         }}
         #importFab:hover {{
             background-color: {c['accent_dark']};
+        }}
+        #importFab:pressed {{
+            transform: scale(0.95);
+        }}
+
+        /* ---- 模块卡片（基于 animation-vocabulary）---- */
+        #moduleCard {{
+            background: {c['surface']};
+            border: 1px solid {c['divider']};
+            border-radius: {c['card_radius']};
+            margin-bottom: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 200ms ease-out, border-color 200ms ease-out, transform 150ms ease-out;
+        }}
+        #moduleCard:hover {{
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-color: {c['primary']};
+        }}
+        #moduleCard:pressed {{
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            transform: scale(0.98);
+        }}
+
+        /* ---- Toggle Switch（基于 animation-vocabulary）---- */
+        #toggleSwitch {{
+            background: {c['outline']};
+            border: none;
+            border-radius: 12px;
+            min-width: 44px;
+            min-height: 24px;
+            padding: 0;
+            margin: 0;
+            transition: background 200ms ease-out;
+        }}
+        #toggleSwitch:checked {{
+            background: {c['primary']};
+        }}
+        #toggleSwitch::indicator {{
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 2px;
+            transition: margin-left 200ms ease-out;
+        }}
+        #toggleSwitch:checked::indicator {{
+            margin-left: 22px;
+        }}
+
+        /* ---- 查看按钮 ---- */
+        #viewBtn {{
+            background: {c['primary']};
+            color: {c['on_primary']};
+            border: none;
+            border-radius: {c['btn_radius']};
+            padding: 4px 12px;
+            font-size: 9pt;
+            font-weight: 500;
+            transition: background 200ms ease-out, transform 100ms ease-out;
+        }}
+        #viewBtn:hover {{
+            background: {c['primary_dark']};
+        }}
+        #viewBtn:pressed {{
+            transform: scale(0.95);
+        }}
+        #viewBtn:disabled {{
+            background: {c['surface_variant']};
+            color: {c['outline']};
         }}
     """
 
@@ -1098,6 +1291,75 @@ def _winui3_main(c):
             background: {c['primary']};
             border: 1px solid {c['primary']};
         }}
+        #importFab:pressed {{
+            transform: scale(0.95);
+        }}
+
+        /* ---- 模块卡片（基于 animation-vocabulary）---- */
+        #moduleCard {{
+            background: rgba(255, 255, 255, 0.70);
+            border: 1px solid {c['outline']};
+            border-radius: {c['card_radius']};
+            margin-bottom: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 200ms ease-out, border-color 200ms ease-out, transform 150ms ease-out;
+        }}
+        #moduleCard:hover {{
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-color: {c['primary']};
+        }}
+        #moduleCard:pressed {{
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transform: scale(0.98);
+        }}
+
+        /* ---- Toggle Switch（基于 animation-vocabulary）---- */
+        #toggleSwitch {{
+            background: {c['outline']};
+            border: none;
+            border-radius: 12px;
+            min-width: 44px;
+            min-height: 24px;
+            padding: 0;
+            margin: 0;
+            transition: background 200ms ease-out;
+        }}
+        #toggleSwitch:checked {{
+            background: {c['primary']};
+        }}
+        #toggleSwitch::indicator {{
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 2px;
+            transition: margin-left 200ms ease-out;
+        }}
+        #toggleSwitch:checked::indicator {{
+            margin-left: 22px;
+        }}
+
+        /* ---- 查看按钮 ---- */
+        #viewBtn {{
+            background: {c['primary']};
+            color: {c['on_primary']};
+            border: none;
+            border-radius: {c['btn_radius']};
+            padding: 4px 12px;
+            font-size: 9pt;
+            font-weight: 500;
+            transition: background 200ms ease-out, transform 100ms ease-out;
+        }}
+        #viewBtn:hover {{
+            opacity: 0.9;
+        }}
+        #viewBtn:pressed {{
+            transform: scale(0.95);
+        }}
+        #viewBtn:disabled {{
+            background: {c['surface_variant']};
+            color: {c['outline']};
+        }}
     """
 
 
@@ -1456,6 +1718,75 @@ def _win10fluent_main(c):
             background: {c['primary']};
             border: 1px solid {c['primary']};
         }}
+        #importFab:pressed {{
+            transform: scale(0.95);
+        }}
+
+        /* ---- 模块卡片（基于 animation-vocabulary）---- */
+        #moduleCard {{
+            background: rgba(255, 255, 255, 0.70);
+            border: 1px solid {c['outline']};
+            border-radius: {c['card_radius']};
+            margin-bottom: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+            transition: box-shadow 200ms ease-out, border-color 200ms ease-out, transform 150ms ease-out;
+        }}
+        #moduleCard:hover {{
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+            border-color: {c['primary']};
+        }}
+        #moduleCard:pressed {{
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+            transform: scale(0.98);
+        }}
+
+        /* ---- Toggle Switch（基于 animation-vocabulary）---- */
+        #toggleSwitch {{
+            background: {c['outline']};
+            border: none;
+            border-radius: 12px;
+            min-width: 44px;
+            min-height: 24px;
+            padding: 0;
+            margin: 0;
+            transition: background 200ms ease-out;
+        }}
+        #toggleSwitch:checked {{
+            background: {c['primary']};
+        }}
+        #toggleSwitch::indicator {{
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 2px;
+            transition: margin-left 200ms ease-out;
+        }}
+        #toggleSwitch:checked::indicator {{
+            margin-left: 22px;
+        }}
+
+        /* ---- 查看按钮 ---- */
+        #viewBtn {{
+            background: {c['primary']};
+            color: {c['on_primary']};
+            border: none;
+            border-radius: {c['btn_radius']};
+            padding: 4px 12px;
+            font-size: 9pt;
+            font-weight: 500;
+            transition: background 200ms ease-out, transform 100ms ease-out;
+        }}
+        #viewBtn:hover {{
+            opacity: 0.9;
+        }}
+        #viewBtn:pressed {{
+            transform: scale(0.95);
+        }}
+        #viewBtn:disabled {{
+            background: {c['surface_variant']};
+            color: {c['outline']};
+        }}
     """
 
 
@@ -1781,6 +2112,76 @@ def _gnome_main(c):
         #importFab:hover {{
             background: {c['primary']};
             color: {c['on_primary']};
+        }}
+        #importFab:pressed {{
+            transform: scale(0.95);
+        }}
+
+        /* ---- 模块卡片（基于 animation-vocabulary）---- */
+        #moduleCard {{
+            background: {c['surface']};
+            border: 1px solid {c['outline']};
+            border-radius: {c['card_radius']};
+            margin-bottom: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 200ms ease-out, border-color 200ms ease-out, transform 150ms ease-out;
+        }}
+        #moduleCard:hover {{
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            border-color: {c['primary']};
+        }}
+        #moduleCard:pressed {{
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transform: scale(0.98);
+        }}
+
+        /* ---- Toggle Switch（基于 animation-vocabulary）---- */
+        #toggleSwitch {{
+            background: {c['outline']};
+            border: none;
+            border-radius: 12px;
+            min-width: 44px;
+            min-height: 24px;
+            padding: 0;
+            margin: 0;
+            transition: background 200ms ease-out;
+        }}
+        #toggleSwitch:checked {{
+            background: {c['primary']};
+        }}
+        #toggleSwitch::indicator {{
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 2px;
+            transition: margin-left 200ms ease-out;
+        }}
+        #toggleSwitch:checked::indicator {{
+            margin-left: 22px;
+        }}
+
+        /* ---- 查看按钮 ---- */
+        #viewBtn {{
+            background: {c['primary']};
+            color: {c['on_primary']};
+            border: none;
+            border-radius: {c['btn_radius']};
+            padding: 4px 12px;
+            font-size: 9pt;
+            font-weight: 500;
+            transition: background 200ms ease-out, transform 100ms ease-out;
+        }}
+        #viewBtn:hover {{
+            background: {c['primary_container']};
+            color: {c['on_primary_container']};
+        }}
+        #viewBtn:pressed {{
+            transform: scale(0.95);
+        }}
+        #viewBtn:disabled {{
+            background: {c['surface_variant']};
+            color: {c['outline']};
         }}
     """
 
@@ -2113,6 +2514,76 @@ def _kde_main(c):
             background: {c['primary']};
             color: {c['on_primary']};
         }}
+        #importFab:pressed {{
+            transform: scale(0.95);
+        }}
+
+        /* ---- 模块卡片（基于 animation-vocabulary）---- */
+        #moduleCard {{
+            background: {c['surface']};
+            border: 1px solid {c['outline']};
+            border-radius: {c['card_radius']};
+            margin-bottom: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 200ms ease-out, border-color 200ms ease-out, transform 150ms ease-out;
+        }}
+        #moduleCard:hover {{
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            border-color: {c['primary']};
+        }}
+        #moduleCard:pressed {{
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transform: scale(0.98);
+        }}
+
+        /* ---- Toggle Switch（基于 animation-vocabulary）---- */
+        #toggleSwitch {{
+            background: {c['outline']};
+            border: none;
+            border-radius: 12px;
+            min-width: 44px;
+            min-height: 24px;
+            padding: 0;
+            margin: 0;
+            transition: background 200ms ease-out;
+        }}
+        #toggleSwitch:checked {{
+            background: {c['primary']};
+        }}
+        #toggleSwitch::indicator {{
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 2px;
+            transition: margin-left 200ms ease-out;
+        }}
+        #toggleSwitch:checked::indicator {{
+            margin-left: 22px;
+        }}
+
+        /* ---- 查看按钮 ---- */
+        #viewBtn {{
+            background: {c['primary']};
+            color: {c['on_primary']};
+            border: none;
+            border-radius: {c['btn_radius']};
+            padding: 4px 12px;
+            font-size: 9pt;
+            font-weight: 500;
+            transition: background 200ms ease-out, transform 100ms ease-out;
+        }}
+        #viewBtn:hover {{
+            background: {c['primary_container']};
+            color: {c['on_primary_container']};
+        }}
+        #viewBtn:pressed {{
+            transform: scale(0.95);
+        }}
+        #viewBtn:disabled {{
+            background: {c['surface_variant']};
+            color: {c['outline']};
+        }}
     """
 
 
@@ -2439,6 +2910,76 @@ def _cupertino_main(c):
             background: {c['primary_container']};
             color: {c['on_primary_container']};
         }}
+        #importFab:pressed {{
+            transform: scale(0.95);
+        }}
+
+        /* ---- 模块卡片（基于 animation-vocabulary）---- */
+        #moduleCard {{
+            background: {c['surface']};
+            border: 1px solid {c['outline']};
+            border-radius: {c['card_radius']};
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: box-shadow 200ms ease-out, border-color 200ms ease-out, transform 150ms ease-out;
+        }}
+        #moduleCard:hover {{
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            border-color: {c['primary']};
+        }}
+        #moduleCard:pressed {{
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transform: scale(0.98);
+        }}
+
+        /* ---- Toggle Switch（基于 animation-vocabulary）---- */
+        #toggleSwitch {{
+            background: {c['outline']};
+            border: none;
+            border-radius: 12px;
+            min-width: 44px;
+            min-height: 24px;
+            padding: 0;
+            margin: 0;
+            transition: background 200ms ease-out;
+        }}
+        #toggleSwitch:checked {{
+            background: {c['primary']};
+        }}
+        #toggleSwitch::indicator {{
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 2px;
+            transition: margin-left 200ms ease-out;
+        }}
+        #toggleSwitch:checked::indicator {{
+            margin-left: 22px;
+        }}
+
+        /* ---- 查看按钮 ---- */
+        #viewBtn {{
+            background: {c['primary']};
+            color: {c['on_primary']};
+            border: none;
+            border-radius: {c['btn_radius']};
+            padding: 4px 12px;
+            font-size: 9pt;
+            font-weight: 500;
+            transition: background 200ms ease-out, transform 100ms ease-out;
+        }}
+        #viewBtn:hover {{
+            background: {c['primary_container']};
+            color: {c['on_primary_container']};
+        }}
+        #viewBtn:pressed {{
+            transform: scale(0.95);
+        }}
+        #viewBtn:disabled {{
+            background: {c['surface_variant']};
+            color: {c['outline']};
+        }}
     """
 
 
@@ -2764,6 +3305,76 @@ def _chromeos_main(c):
         #importFab:hover {{
             background: {c['primary_container']};
             color: {c['on_primary_container']};
+        }}
+        #importFab:pressed {{
+            transform: scale(0.95);
+        }}
+
+        /* ---- 模块卡片（基于 animation-vocabulary）---- */
+        #moduleCard {{
+            background: {c['surface']};
+            border: 1px solid {c['outline']};
+            border-radius: {c['card_radius']};
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: box-shadow 200ms ease-out, border-color 200ms ease-out, transform 150ms ease-out;
+        }}
+        #moduleCard:hover {{
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            border-color: {c['primary']};
+        }}
+        #moduleCard:pressed {{
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transform: scale(0.98);
+        }}
+
+        /* ---- Toggle Switch（基于 animation-vocabulary）---- */
+        #toggleSwitch {{
+            background: {c['outline']};
+            border: none;
+            border-radius: 12px;
+            min-width: 44px;
+            min-height: 24px;
+            padding: 0;
+            margin: 0;
+            transition: background 200ms ease-out;
+        }}
+        #toggleSwitch:checked {{
+            background: {c['primary']};
+        }}
+        #toggleSwitch::indicator {{
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 2px;
+            transition: margin-left 200ms ease-out;
+        }}
+        #toggleSwitch:checked::indicator {{
+            margin-left: 22px;
+        }}
+
+        /* ---- 查看按钮 ---- */
+        #viewBtn {{
+            background: {c['primary']};
+            color: {c['on_primary']};
+            border: none;
+            border-radius: {c['btn_radius']};
+            padding: 4px 12px;
+            font-size: 9pt;
+            font-weight: 500;
+            transition: background 200ms ease-out, transform 100ms ease-out;
+        }}
+        #viewBtn:hover {{
+            background: {c['primary_container']};
+            color: {c['on_primary_container']};
+        }}
+        #viewBtn:pressed {{
+            transform: scale(0.95);
+        }}
+        #viewBtn:disabled {{
+            background: {c['surface_variant']};
+            color: {c['outline']};
         }}
     """
 

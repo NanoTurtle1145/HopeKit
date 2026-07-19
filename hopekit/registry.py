@@ -42,6 +42,7 @@ class ModuleRegistry:
         name: str,
         icon: str = "📦",
         title: str = "",
+        description: str = "",
         category: str = "tools",
         kind: str = "window",
         enabled: bool = True,
@@ -53,6 +54,7 @@ class ModuleRegistry:
             name: 唯一标识
             icon: 按钮图标（emoji 或文字）
             title: 按钮显示文本（默认等于 name）
+            description: 模块描述（卡片副标题，可为空）
             category: 所属分类（tools / links / 自定义）
             kind: "window"（弹窗）或 "page"（嵌入主区域）
             enabled: 是否启用（False 则按钮置灰）
@@ -61,6 +63,7 @@ class ModuleRegistry:
             cls._modules[name] = {
                 "icon": icon,
                 "title": title or name,
+                "description": description,
                 "category": category,
                 "kind": kind,
                 "factory": factory,
@@ -94,6 +97,12 @@ class ModuleRegistry:
     def get(cls, name: str) -> Optional[dict]:
         """根据 name 获取模块元信息。"""
         return cls._modules.get(name)
+
+    @classmethod
+    def set_enabled(cls, name: str, enabled: bool):
+        """设置模块启用状态。"""
+        if name in cls._modules:
+            cls._modules[name]["enabled"] = enabled
 
     @classmethod
     def get_or_create(cls, name: str, main_window=None):

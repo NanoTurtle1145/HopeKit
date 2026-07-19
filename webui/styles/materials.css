@@ -1,0 +1,120 @@
+/* ============================================================
+   materials.css — 半透明材质 + 深度层级
+   Apple 风格：
+   - 浮动 chrome 用半透明 + backdrop-blur（content 滚动其下方）
+   - 大表面 = 厚材质（更深 blur + 更深阴影）
+   - 不在浅色半透明上叠加另一个浅色半透明
+   - 滚动边缘渐隐（不是硬分割线）
+   ============================================================ */
+
+/* ---------------- SIDEBAR (THICK MATERIAL) ----------------
+   sidebar 是最大、最重的浮动层：
+   - 强 blur（30px）+ saturate 提色
+   - 半透明背景让桌面 / DWM 材质透出来
+   - 0.5px outline 提供边缘光（"光打在材质上"） */
+.sidebar {
+  background: var(--color-sidebar-bg);
+  backdrop-filter: var(--blur-sidebar);
+  -webkit-backdrop-filter: var(--blur-sidebar);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* 透明主题下：sidebar 仍保留薄薄一层 vibrancy，避免和桌面完全融合 */
+[data-material="transparent"] .sidebar {
+  background: var(--color-sidebar-bg);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+}
+
+/* ---------------- CONTENT SURFACE ----------------
+   content 用不透明 surface：
+   - 不在 sidebar 之上叠加另一个半透明
+   - 卡片可读性优先 */
+.content {
+  background: var(--color-surface);
+  backdrop-filter: none;
+}
+
+/* ---------------- CONTENT FADE EDGE ----------------
+   content 滚动到顶部时，header 与内容之间不用硬分割线，
+   而是用渐变 mask 制造"内容消失在材质下"的效果 */
+.content::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 88px;  /* header 高度下方 */
+  height: 12px;
+  background: linear-gradient(to bottom, var(--color-surface), transparent);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.content[data-scrolled="true"]::before {
+  opacity: 1;
+}
+
+/* ---------------- CARD SHADOW HIERARCHY ----------------
+   Apple 风格：表面越大，阴影越深；卡片不应浮空过高 */
+.card {
+  background: var(--color-background);
+  box-shadow: var(--shadow-1);
+  transition: box-shadow var(--duration-color) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-2);
+}
+
+.card:active {
+  /* pointer-down 即反馈 */
+  box-shadow: var(--shadow-1);
+}
+
+/* ---------------- TOOLBAR (浮动顶栏，预留) ----------------
+   若未来需要在 content 顶部叠一个浮动 toolbar，
+   它应该是更轻的材质，更浅的 blur */
+.floating-toolbar {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: var(--blur-toolbar);
+  -webkit-backdrop-filter: var(--blur-toolbar);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .floating-toolbar {
+  background: rgba(28, 28, 30, 0.65);
+}
+
+/* ---------------- SCRIM (modal dim) ----------------
+   模态任务配 dimming scrim，把背景往后推 */
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 100;
+  opacity: 0;
+  transition: opacity var(--duration-color) var(--ease-out);
+  pointer-events: none;
+}
+
+.scrim[data-visible="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------------- VIBRANCY TEXT ----------------
+   在半透明材质上，文字需要更高对比、略重字重、轻微字距提升 */
+.sidebar,
+.floating-toolbar {
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.005em;
+}
+
+.sidebar .nav-item {
+  font-weight: var(--fw-medium);
+}
